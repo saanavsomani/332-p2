@@ -10,32 +10,49 @@ import java.util.NoSuchElementException;
  * for method specifications.
  */
 public class ArrayStack<E> extends LIFOWorkList<E> {
+    private E[] elements;
+    private int top;
+
     public ArrayStack() {
-        throw new NotYetImplementedException();
+        this.elements = (E[])new Object[10];
+        this.top = -1;
     }
 
     @Override
     public void add(E work) {
-        throw new NotYetImplementedException();
+        //if (work == null) throw new IllegalArgumentException();
+        if (top + 1 == elements.length) resize();
+        this.elements[++top] = work;
     }
 
     @Override
     public E peek() {
-        throw new NotYetImplementedException();
+        if (!this.hasWork()) throw new NoSuchElementException();
+        return elements[top];
     }
 
     @Override
     public E next() {
-        throw new NotYetImplementedException();
+        if(!this.hasWork()) throw new NoSuchElementException();
+        return elements[top--];
     }
 
     @Override
     public int size() {
-        throw new NotYetImplementedException();
+        return top + 1;
     }
 
     @Override
     public void clear() {
-        throw new NotYetImplementedException();
+        top = -1;
+        elements = (E[])new Object[10];
+    }
+
+    private void resize() {
+        E[] resizedArray = (E[])new Object[elements.length*2];
+        for (int i = 0; i < elements.length; i++) {
+            resizedArray[i] = elements[i];
+        }
+        elements = resizedArray;
     }
 }
