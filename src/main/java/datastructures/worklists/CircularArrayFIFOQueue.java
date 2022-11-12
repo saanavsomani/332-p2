@@ -17,7 +17,7 @@ public class CircularArrayFIFOQueue<E extends Comparable<E>> extends FixedSizeFI
 
     public CircularArrayFIFOQueue(int capacity) {
         super(capacity);
-        this.elements = (E[])new Object[capacity];
+        this.elements = (E[])new Comparable[capacity];
         this.front = 0;
         this.back = 0;
         this.size = 0;
@@ -105,6 +105,10 @@ public class CircularArrayFIFOQueue<E extends Comparable<E>> extends FixedSizeFI
     @Override
     public int hashCode() {
         // You will implement this method in project 2. Leave this method unchanged for project 1.
-        throw new NotYetImplementedException();
+        int hashCode = 1;
+        for (E item: elements) {
+            hashCode = 31*hashCode + (item == null ? 0 : item.hashCode());
+        }
+        return hashCode;
     }
 }

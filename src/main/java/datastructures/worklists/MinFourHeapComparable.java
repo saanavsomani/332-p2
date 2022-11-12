@@ -29,19 +29,11 @@ public class MinFourHeapComparable<E extends Comparable<E>> extends PriorityWork
     @Override
     public void add(E work) {
         resize();
-        this.data[size++] = work;
+        this.size++;
+        int index = percolateUp(this.size - 1, work);
+        this.data[index] = work;
     }
 
-    private void resize() {
-        if (this.size == this.capacity) {
-            E[] temp = (E[]) new Comparable[capacity * 2];
-            for (int i = 0; i < this.size; i++) {
-                temp[i] = this.data[i];
-            }
-            this.data = temp;
-            this.capacity *= 2;
-        }
-    }
     @Override
     public E peek() {
         if (!hasWork()) throw new NoSuchElementException();
@@ -50,7 +42,11 @@ public class MinFourHeapComparable<E extends Comparable<E>> extends PriorityWork
 
     @Override
     public E next() {
-        throw new NotYetImplementedException();
+        E min = peek();
+        int index = percolateDown(0, this.data[this.size - 1]);
+        this.data[index] = this.data[this.size - 1];
+        this.size--;
+        return min;
     }
 
     @Override
@@ -64,5 +60,56 @@ public class MinFourHeapComparable<E extends Comparable<E>> extends PriorityWork
         this.size = 0;
         this.data = temp;
 
+    }
+
+    private int percolateDown(int hole, E key) {
+        while (4 * hole + 1 <= this.size) {
+            int target = 4 * hole + 1;
+            int second = target + 1;
+            int third = second + 1;
+            int fourth = third + 1;
+
+            if (target >= this.size) break;
+
+            //find index of the smallest child
+            if (second < this.size && this.data[target].compareTo(this.data[second]) > 0) {
+                target = second;
+            }
+            if (third < this.size && this.data[target].compareTo(this.data[third]) > 0) {
+                target = third;
+            }
+            if (fourth < this.size && this.data[target].compareTo(this.data[fourth]) > 0) {
+                target = fourth;
+            }
+            //swaps the smallest child with the parent
+            if (key.compareTo(this.data[target]) > 0) {
+                this.data[hole] = this.data[target];
+                hole = target;
+            } else {
+                break;
+            }
+
+        }
+        return hole;
+    }
+
+    private int percolateUp(int hole, E key) {
+        while (hole > 0 && key.compareTo(this.data[(hole - 1) / 4]) < 0) {
+            this.data[hole] = this.data[(hole - 1) / 4];
+            hole = (hole - 1) / 4;
+        }
+
+        return hole;
+    }
+
+    private void resize() {
+        if (this.size == this.capacity) {
+            E[] temp = (E[]) new Comparable[capacity * 2];
+            for (int i = 0; i < this.size; i++) {
+                temp[i] = this.data[i];
+            }
+            this.data = temp;
+            this.capacity *= 2;
+        }
     }
 }

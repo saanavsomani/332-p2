@@ -2,6 +2,7 @@ package datastructures.dictionaries;
 
 import cse332.datastructures.containers.Item;
 import cse332.exceptions.NotYetImplementedException;
+import java.util.NoSuchElementException;
 import cse332.interfaces.misc.DeletelessDictionary;
 import cse332.interfaces.misc.Dictionary;
 
@@ -38,9 +39,64 @@ public class ChainingHashTable<K, V> extends DeletelessDictionary<K, V> {
         this.size = 0;
         this.sizesTracker = 0;
         this.hashTable = (Dictionary<K,V>[]) new Dictionary[SIZES[this.sizesTracker]];
-        for (int i = 0; i < this.hashTable.length; i++) {
-            hashTable[i] = newChain.get();
+        for (Dictionary<K,V> curr: this.hashTable) {
+            curr = newChain.get();
         }
+    }
+
+    @Override
+    public V insert(K key, V value) {
+        if (key == null || value == null) throw new IllegalArgumentException();
+
+        if (getLoadFactor() >= RESIZE_LOAD_FACTOR) rehash();
+
+        Dictionary<K,V> temp = findValue(key);
+        V prevVal = temp.insert(key, value);
+        if (prevVal == null) this.size++;
+        return prevVal;
+    }
+
+    @Override
+    public V find(K key) {
+        if (key == null) throw new IllegalArgumentException();
+        Dictionary<K,V> temp = findValue(key);
+        return temp.find(key);
+    }
+
+    @Override
+    public Iterator<Item<K, V>> iterator() {
+        if (this.hashTable[0] == null) this.hashTable[0] = newChain.get();
+        Iterator<Item<K,V>> iterator = new Iterator<Item<K,V>>() {
+            private int index = 0;
+
+            public Iterator<Item<K,V>> getNext() {
+                Dictionary<K,V> tracker = null;
+                while ((tracker == null || tracker.isEmpty()) && index < ChainingHashTable.this.hashTable.length) {
+                    tracker = ChainingHashTable.this.hashTable[index++];
+                }
+
+                return (tracker != null) ? tracker.iterator() : null;
+
+            }
+
+            Iterator<Item<K,V>> temp = getNext();
+
+            @Override
+            public boolean hasNext() {
+                return temp != null;
+            }
+
+            @Override
+            public Item<K,V> next() {
+                if (!hasNext()) throw new NoSuchElementException();
+
+                Item<K,V> nextItem = temp.next();
+                if (!temp.hasNext()) temp = getNext();
+                return nextItem;
+            }
+        };
+
+        return iterator;
     }
 
     private void rehash() {
@@ -62,12 +118,12 @@ public class ChainingHashTable<K, V> extends DeletelessDictionary<K, V> {
             }
         }
 
-    };
+    }
 
     private int getHashVal(K key) {
         //if (key == null) throw new IllegalArgumentException();
         int hashVal = Math.abs(key.hashCode());
-        hashVal /= this.hashTable.length;
+        hashVal %= this.hashTable.length;
         return hashVal;
     }
 
@@ -86,30 +142,6 @@ public class ChainingHashTable<K, V> extends DeletelessDictionary<K, V> {
         }
 
         return returnVal;
-    }
-    @Override
-    public V insert(K key, V value) {
-        if (key == null || value == null) throw new IllegalArgumentException();
-
-        if (getLoadFactor() >= RESIZE_LOAD_FACTOR) rehash();
-
-        Dictionary<K,V> temp = findValue(key);
-        V prevVal = temp.insert(key, value);
-        if (prevVal != null) this.size++;
-        return prevVal;
-    }
-
-    @Override
-    public V find(K key) {
-        if (key == null) throw new IllegalArgumentException();
-        Dictionary<K,V> temp = findValue(key);
-        return temp.find(key);
-    }
-
-    @Override
-    public Iterator<Item<K, V>> iterator() {
-        if (this.hashTable[0] == null) this.hashTable[0] = newChain.get();
-
     }
 
     /**
