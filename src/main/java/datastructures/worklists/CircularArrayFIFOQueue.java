@@ -77,7 +77,7 @@ public class CircularArrayFIFOQueue<E extends Comparable<E>> extends FixedSizeFI
         int min = Math.min(this.size(), other.size());
         int diff = 0;
         for (int i = 0; i < min; i++) {
-            diff = this.peek(i).compareTo(this.peek(i));
+            diff = this.peek(i).compareTo(other.peek(i));
             if (diff != 0) return diff;
         }
 
