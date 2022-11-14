@@ -59,7 +59,7 @@ public class MinFourHeap<E> extends PriorityWorkList<E> {
 
     @Override
     public void clear() {
-        E[] temp = (E[]) new Comparable[capacity];
+        E[] temp = (E[]) new Object[capacity];
         this.size = 0;
         this.data = temp;
     }

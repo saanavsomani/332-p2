@@ -3,9 +3,10 @@ package p2.sorts;
 import cse332.exceptions.NotYetImplementedException;
 
 import java.util.Comparator;
-import datastructures.worklists.MinFourHeap;
+import cse332.sorts.InsertionSort;
 
 public class QuickSort {
+    public static final int CUTOFF = 16;
     public static <E extends Comparable<E>> void sort(E[] array) {
         QuickSort.sort(array, (x, y) -> x.compareTo(y));
     }
@@ -16,13 +17,15 @@ public class QuickSort {
 
     private static <E> void quickSort(E[] array, int low, int high, Comparator<E> comparator) {
         //if low < high
-        if (low < high) {
+        if (high - low >= CUTOFF) {
             //determines the partition index and puts array[pi] at right place
             int pi = partition(array, low, high, comparator);
             //recursively sorts elements before pi
             quickSort(array, low, pi - 1, comparator);
             //recursively sorts elements after pi
             quickSort(array, pi + 1, high, comparator);
+        } else {
+            InsertionSort.sort(array, comparator);
         }
     }
 
